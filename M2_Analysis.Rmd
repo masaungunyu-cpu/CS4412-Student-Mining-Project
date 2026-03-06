@@ -1,0 +1,119 @@
+---
+title: "CS 4412 Data Mining - M2 Initial Implementation"
+author: "Your Name"
+date: "`r Sys.Date()`"
+output:
+  word_document: default
+  pdf_document: default
+  html_document:
+    df_print: paged
+---
+# Introduction
+This analysis explores patterns within the Student Performance dataset obtained from the UCI Machine Learning Repository. The dataset contains demographic, academic, social, and lifestyle attributes for secondary school students enrolled in Mathematics and Portuguese language courses.
+
+The goal of this milestone is to perform exploratory data analysis (EDA), prepare the dataset through preprocessing and transformation, and apply an initial data mining technique to discover patterns in student behavior and academic performance.
+
+The discovery questions guiding this analysis are:
+
+1. Do family and socioeconomic attributes form recognizable patterns linked to academic consistency?
+
+2. How do study habits and absences interact to shape academic performance patterns?
+
+3. What natural clusters of students emerge when combining demographic, family, and academic features?
+
+To begin answering these questions, the analysis will first explore the structure and quality of the dataset before applying clustering techniques to identify natural student groups.
+# Setup Environment
+```{r setup}
+library(tidyverse)
+library(cluster)
+library(factoextra)
+library(corrplot)
+```
+# Data Loading
+```{r}
+student_math <- read.csv(
+"C:/Users/masaungunyu/Downloads/Data_Repository_RLDM4Dh/student-mat.csv",
+header = TRUE,
+sep = ",",
+stringsAsFactors = FALSE
+)
+```
+# Structure Check
+```{r}
+str(student_math)
+```
+
+## Data Overview
+```{r}
+# Check structure
+str(student_math)
+
+# Dimensions
+dim(student_math)
+
+# Column names
+names(student_math)
+```
+## EDA Visualizations
+## Summary Statistics
+```{r}
+summary(student_math)
+```
+## Missing Values Check
+```{r}
+colSums(is.na(student_math))
+```
+## Age Distribution
+```{r}
+hist(student_math$age,
+     main="Distribution of Student Age",
+     xlab="Age",
+     col="lightblue")
+```
+The histogram shows that most students are between ages 16 and 18. Few students are older than 20, indicating the dataset primarily represents typical secondary school ages.
+```{r}
+str(student_math)
+```
+```{r}
+str(student_math)
+```
+```{r}
+str(student_math)
+```
+## Gender Distribution
+```{r}
+table(student_math$sex)
+
+barplot(table(student_math$sex),
+        main="Gender Distribution",
+        col=c("pink","lightblue"))
+```
+The dataset contains both male and female students, with females slightly more represented than males.
+## Study Time vs Final Grade
+```{r}
+plot(student_math$studytime,
+     student_math$G3,
+     main="Study Time vs Final Grade",
+     xlab="Study Time",
+     ylab="Final Grade")
+```
+Students who spend more time studying tend to achieve higher final grades, though the relationship is not perfectly linear.
+## Correlation Analysis
+```{r}
+numeric_data <- student_math[, c("age","studytime","failures","absences","G1","G2","G3")]
+
+cor(numeric_data)
+```
+Based on the correlation matrix, past academic results significantly relate to future grades and G1 is significantly correlated with G2(0.85) and G3(0.80) and G2 is significantly correlated with G3(0.9). This means that the students who have performed well in previous times are likely to have high performance in subsequent tests.
+
+As well, history failures have a moderate negative relationship with grades (approximately -0.35) indicating that historically low failure yields lower grades among students. Conversely, the study time does not exhibit robust positive connection with grades, and absences hardly have any significant connection with performance in this dataset.
+## Data Preprocessing
+```{r}
+# Check duplicates
+sum(duplicated(student_math))
+
+# Check outliers
+boxplot(student_math$absences)
+```
+# Correlation Analysis
+The clustering analysis focuses on academic behavior and performance-related attributes. Variables were selected because they capture study habits, historical academic performance, and student engagement patterns. Categorical variables were excluded from clustering because K-means requires numerical distance computation.
